@@ -38,16 +38,18 @@ export function Keyboard({ letterStates, onKeyPress, language, disabled }: Keybo
     return 'bg-gray-200 hover:bg-gray-300 text-gray-900';
   };
 
-  const getRowOffset = (rowIndex: number) => {
-    if (rowIndex === 1) return 'ml-4'; // Middle row offset
-    if (rowIndex === 2) return 'ml-8'; // Bottom row offset
+  // Row padding for QWERTY stagger effect (subtle shift left)
+  const getRowPadding = (rowIndex: number): string => {
+    if (rowIndex === 0) return '';           // Top row: no offset
+    if (rowIndex === 1) return '';   // Middle row: tiny shift left
+    if (rowIndex === 2) return '';   // Bottom row: small shift left
     return '';
   };
 
   return (
-    <div className="max-w-lg mx-auto p-2 space-y-2">
+    <div className="flex flex-col items-center p-2 space-y-2">
       {keyboard.map((row, rowIndex) => (
-        <div key={rowIndex} className={`flex justify-center gap-1 ${getRowOffset(rowIndex)}`}>
+        <div key={rowIndex} className={`flex gap-1 ${getRowPadding(rowIndex)}`}>
           {row.map((key) => (
             <button
               key={key}

@@ -223,14 +223,44 @@ if ((result as any).error) {
 - `components/common/` - Reusable UI (Modal, Button)
 - `components/games/ferdle/` - Game-specific components (Board, Keyboard, CompletionModal)
 
-### Modal Layout (Recent Fix)
+### Responsive Header
+The header adapts to mobile screens with:
+- **Responsive brand name**: Shows "FG" on mobile (`sm:hidden`), "Ferdman Games" on desktop (`hidden sm:inline`)
+- **Avatar dropdown menu**: Consolidates user actions (Leaderboard, Logout) into a dropdown triggered by clicking the avatar
+- **Click-outside handler**: Closes dropdown when clicking elsewhere using `useRef` and `useEffect`
+
+```tsx
+// Brand with responsive text
+<h1 className="text-xl sm:text-2xl font-bold text-blue-600 whitespace-nowrap">
+  <span className="sm:hidden">FG</span>
+  <span className="hidden sm:inline">Ferdman Games</span>
+</h1>
+
+// Avatar dropdown with click-outside handling
+const menuRef = useRef<HTMLDivElement>(null);
+useEffect(() => {
+  function handleClickOutside(event: MouseEvent) {
+    if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+      setMenuOpen(false);
+    }
+  }
+  if (menuOpen) {
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }
+}, [menuOpen]);
+```
+
+**Location:** `frontend/src/components/layout/Header.tsx`
+
+### Modal Layout
 The completion modal uses a specific flexbox pattern to handle image letterboxing:
 
 ```tsx
-<Modal> {/* h-[90vh] flex flex-col overflow-hidden */}
+<Modal> {/* max-h-[calc(100vh-3rem)] sm:max-h-[90vh] flex flex-col overflow-hidden */}
   <Header className="flex-shrink-0" />
   <ImageContainer className="flex-1 h-0 min-h-0 min-w-0"> {/* Critical! */}
-    <img className="max-w-full max-h-full object-contain" />
+    <img className="max-w-full max-h-full sm:max-w-[min(100%,60vh)] object-contain" />
   </ImageContainer>
   <Buttons className="flex-shrink-0" />
 </Modal>
@@ -241,6 +271,12 @@ The completion modal uses a specific flexbox pattern to handle image letterboxin
 - `h-0` gives base height for flex-1 to grow from
 - `min-h-0 min-w-0` allows proper shrinking below content size
 - Enables `max-h-full` on image to work correctly with percentage-based sizing
+
+**Why `sm:max-w-[min(100%,60vh)]` on the image?**
+- On widescreen displays, images would scale to full width (wrong aspect ratio)
+- The `min()` function constrains width relative to viewport height
+- 60vh keeps the image within the modal's content area without overlapping header/footer
+- Mobile uses `max-w-full` since portrait orientation doesn't have this issue
 
 **Location:** `frontend/src/components/common/Modal.tsx`, `frontend/src/components/games/ferdle/CompletionModal.tsx`
 

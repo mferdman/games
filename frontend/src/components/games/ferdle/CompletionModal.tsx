@@ -59,11 +59,11 @@ export function CompletionModal({
 
       {/* Image - flexible size */}
       {aiImageUrl && (
-        <div className="flex-1 h-0 min-h-0 min-w-0 flex items-center justify-center px-6">
+        <div className="flex-1 h-0 min-h-0 min-w-0 flex items-center justify-center p-4">
           <img
             src={aiImageUrl}
             alt="AI generated illustration"
-            className="max-w-full max-h-full rounded-lg object-contain"
+            className="max-w-full max-h-full sm:max-w-[min(100%,60vh)] rounded-lg object-contain"
             onError={(e) => {
               (e.target as HTMLImageElement).style.display = 'none';
             }}
