@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { Container } from '../components/layout/Container';
 import { Spinner } from '../components/common/Spinner';
+import { Toast } from '../components/common/Toast';
 import { GameBoard } from '../components/games/ferdle/GameBoard';
 import { Keyboard } from '../components/games/ferdle/Keyboard';
 import { CompletionModal } from '../components/games/ferdle/CompletionModal';
@@ -72,7 +73,6 @@ export function FerdlePage({ gameId }: FerdlePageProps) {
       if (key === 'ENTER') {
         if (currentGuess.length !== wordLength) {
           setError(`Word must be ${wordLength} letters`);
-          setTimeout(() => setError(null), 2000);
           return;
         }
 
@@ -87,7 +87,6 @@ export function FerdlePage({ gameId }: FerdlePageProps) {
           // Check for error in response
           if ((result as any).error) {
             setError((result as any).error);
-            setTimeout(() => setError(null), 2000);
             return;
           }
 
@@ -99,7 +98,6 @@ export function FerdlePage({ gameId }: FerdlePageProps) {
           }
         } catch (err: any) {
           setError(err.response?.data?.error || 'Invalid guess');
-          setTimeout(() => setError(null), 2000);
         }
       } else if (key === '←' || key === 'BACKSPACE') {
         setCurrentGuess((prev) => prev.slice(0, -1));
@@ -152,6 +150,7 @@ export function FerdlePage({ gameId }: FerdlePageProps) {
 
   return (
     <>
+      <Toast message={error} onDismiss={() => setError(null)} />
       <div className="max-w-2xl mx-auto px-4" style={{ height: 'calc(100vh - 4rem)', paddingBottom: '180px' }}>
         <div className="flex flex-col h-full">
           {/* Header - stays put */}
@@ -159,9 +158,6 @@ export function FerdlePage({ gameId }: FerdlePageProps) {
             <p className="text-gray-600">
               {gameState.maxAttempts - gameState.attempts} attempts remaining
             </p>
-            {error && (
-              <p className="text-red-600 mt-2 font-semibold">{error}</p>
-            )}
           </div>
 
           {/* Game board - scrollable window */}
@@ -183,7 +179,7 @@ export function FerdlePage({ gameId }: FerdlePageProps) {
 
       {/* Keyboard - fixed at bottom */}
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg">
-        <div className="max-w-2xl mx-auto px-4 py-2">
+        <div className="max-w-2xl mx-auto px-2 sm:px-4 py-2">
           <Keyboard
             letterStates={ferdleState.letterStates}
             onKeyPress={handleKeyPress}

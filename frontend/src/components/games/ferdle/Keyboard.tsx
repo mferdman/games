@@ -46,16 +46,23 @@ export function Keyboard({ letterStates, onKeyPress, language, disabled }: Keybo
     return '';
   };
 
+  // Get key-specific classes for width
+  const getKeyWidth = (key: string) => {
+    if (key === 'ENTER') return 'min-w-[3rem] max-w-[4.5rem] md:max-w-[5.5rem] flex-[1.5]';
+    if (key === '←') return 'min-w-[2rem] max-w-[3rem] md:max-w-[4rem] flex-[1.2]';
+    return 'max-w-[2.2rem] sm:max-w-[2.5rem] md:max-w-[3rem]';
+  };
+
   return (
-    <div className="flex flex-col items-center p-2 space-y-2">
+    <div className="flex flex-col items-center space-y-1.5 md:space-y-2 w-full max-w-[min(100%,28rem)] sm:max-w-[min(100%,36rem)] md:max-w-[min(100%,44rem)] mx-auto">
       {keyboard.map((row, rowIndex) => (
-        <div key={rowIndex} className={`flex gap-1 ${getRowPadding(rowIndex)}`}>
+        <div key={rowIndex} className={`flex gap-0.5 sm:gap-1 md:gap-1.5 w-full justify-center ${getRowPadding(rowIndex)}`}>
           {row.map((key) => (
             <button
               key={key}
               onClick={() => onKeyPress(key)}
               disabled={disabled}
-              className={`${getKeyClass(key)} px-2 py-3 rounded font-semibold text-sm min-w-[2rem] transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed`}
+              className={`${getKeyClass(key)} ${getKeyWidth(key)} flex-1 py-3 md:py-4 rounded font-semibold text-xs sm:text-sm md:text-base transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed`}
             >
               {key === '←' ? '⌫' : key}
             </button>
