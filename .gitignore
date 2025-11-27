@@ -1,0 +1,16 @@
+node_modules/
+dist/
+.env
+*.log
+.DS_Store
+
+# Data files
+data/database.sqlite
+data/database.sqlite-shm
+data/database.sqlite-wal
+data/whitelist.txt
+data/images/ai-generated/**/*
+!data/images/ai-generated/.gitkeep
+
+# PM2
+.pm2/
