@@ -3,7 +3,7 @@ import { Container } from '../components/layout/Container';
 import { Spinner } from '../components/common/Spinner';
 import { Toast } from '../components/common/Toast';
 import { GameBoard } from '../components/games/ferdle/GameBoard';
-import { Keyboard } from '../components/games/ferdle/Keyboard';
+import { Keyboard } from '../components/common/Keyboard';
 import { CompletionModal } from '../components/games/ferdle/CompletionModal';
 import { gameAPI } from '../services/api.service';
 import type { GameState, FerdleState } from '../types';
