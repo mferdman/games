@@ -140,9 +140,9 @@ export function getLeaderboard(
       AND ls.period_key = ?
       AND u.group_name = ?
     ORDER BY
-      ls.success_rate DESC,
+      ROUND(ls.success_rate, 6) DESC,
       ls.current_streak DESC,
-      ls.average_attempts ASC,
+      ROUND(ls.average_attempts, 6) ASC,
       ls.games_won DESC
     LIMIT ?
   `);
@@ -193,6 +193,12 @@ export function getUserRank(
   }
 
   // Calculate rank within group
+  // Use ROUND() for float comparisons to avoid precision issues
+  const userSuccessRate = Math.round((userStats as any).success_rate * 1000000) / 1000000;
+  const userAvgAttempts = (userStats as any).average_attempts
+    ? Math.round((userStats as any).average_attempts * 1000000) / 1000000
+    : null;
+
   const rank = db
     .prepare(
       `
@@ -204,10 +210,10 @@ export function getUserRank(
       AND ls.period_key = ?
       AND u.group_name = ?
       AND (
-        ls.success_rate > ? OR
-        (ls.success_rate = ? AND ls.current_streak > ?) OR
-        (ls.success_rate = ? AND ls.current_streak = ? AND ls.average_attempts < ?) OR
-        (ls.success_rate = ? AND ls.current_streak = ? AND ls.average_attempts = ? AND ls.games_won > ?)
+        ROUND(ls.success_rate, 6) > ? OR
+        (ROUND(ls.success_rate, 6) = ? AND ls.current_streak > ?) OR
+        (ROUND(ls.success_rate, 6) = ? AND ls.current_streak = ? AND ROUND(ls.average_attempts, 6) < ?) OR
+        (ROUND(ls.success_rate, 6) = ? AND ls.current_streak = ? AND ROUND(ls.average_attempts, 6) = ? AND ls.games_won > ?)
       )
   `
     )
@@ -216,15 +222,15 @@ export function getUserRank(
       periodType,
       periodKey,
       groupName,
-      (userStats as any).success_rate,
-      (userStats as any).success_rate,
+      userSuccessRate,
+      userSuccessRate,
       (userStats as any).current_streak,
-      (userStats as any).success_rate,
+      userSuccessRate,
       (userStats as any).current_streak,
-      (userStats as any).average_attempts,
-      (userStats as any).success_rate,
+      userAvgAttempts,
+      userSuccessRate,
       (userStats as any).current_streak,
-      (userStats as any).average_attempts,
+      userAvgAttempts,
       (userStats as any).games_won
     ) as any;
 

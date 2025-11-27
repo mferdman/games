@@ -148,6 +148,136 @@ npm run dev:stop
 - **Backend API**: http://localhost:3000
 - **Google OAuth**: http://localhost:3000/auth/google
 
+## Testing
+
+The project includes a comprehensive test suite to catch regressions and ensure code quality.
+
+### Backend Tests
+
+**Run all tests:**
+```bash
+cd backend
+npm test
+```
+
+**Run specific test types:**
+```bash
+npm run test:unit          # Unit tests only
+npm run test:integration   # Integration tests only
+npm run test:e2e          # End-to-end tests only
+```
+
+**Watch mode (re-runs on file changes):**
+```bash
+npm run test:watch
+```
+
+**With coverage report:**
+```bash
+npm run test:coverage
+```
+
+**Current Test Coverage (56 tests):**
+- ✅ Database schema and constraints (25 tests)
+- ✅ Wordle algorithm and duplicate letter handling (12 tests)
+- ✅ Leaderboard rankings and float precision (6 tests)
+- ✅ Security and group isolation (6 tests)
+- ✅ Race conditions and date validation (7 tests)
+
+### Frontend Tests
+
+**Run all tests:**
+```bash
+cd frontend
+npm test
+```
+
+**Watch mode:**
+```bash
+npm run test:watch
+```
+
+**With coverage:**
+```bash
+npm run test:coverage
+```
+
+**Note:** Frontend tests use MSW (Mock Service Worker) to intercept API calls, so no backend server is needed.
+
+### Test Files Location
+
+```
+tests/
+├── backend/
+│   ├── setup/                    # Test utilities and helpers
+│   │   ├── testDatabase.ts      # In-memory SQLite setup
+│   │   ├── testAuth.ts          # Auth bypass utilities
+│   │   └── setupTests.ts        # Global test setup
+│   ├── unit/                    # Unit tests
+│   │   ├── games/               # Game logic tests
+│   │   └── services/            # Service tests
+│   ├── integration/             # Integration tests
+│   │   ├── database/            # Database schema tests
+│   │   └── security/            # Security tests
+│   └── e2e/                     # End-to-end tests
+│       └── race-conditions.test.ts
+└── frontend/
+    ├── setup/                   # Frontend test setup
+    │   └── msw/                 # Mock Service Worker config
+    └── components/              # Component tests
+```
+
+### What The Tests Cover
+
+**Database Integrity:**
+- Unique constraints (email, user+game+date)
+- Foreign key relationships
+- Cascade deletion
+- Index existence
+
+**Game Logic:**
+- Wordle algorithm correctness
+- Duplicate letter handling (ROBOT vs FLOOR)
+- Clue generation accuracy
+- Input validation
+
+**Security:**
+- Group-based data isolation
+- Leaderboard filtering by group
+- Date spoofing prevention
+- Cross-tenant protection
+
+**Leaderboard:**
+- Float precision in rankings (0.666666... handling)
+- Success rate calculations
+- Tie-breaking logic
+- Rank calculations within groups
+
+**Edge Cases:**
+- Concurrent operations
+- Invalid input handling
+- Boundary conditions
+- Error scenarios
+
+### Running Tests in CI/CD
+
+Tests are designed to run in CI/CD pipelines. They use in-memory SQLite databases for speed and complete isolation between tests.
+
+**Example GitHub Actions workflow:**
+```yaml
+- name: Run Backend Tests
+  run: |
+    cd backend
+    npm install
+    npm test
+
+- name: Run Frontend Tests
+  run: |
+    cd frontend
+    npm install
+    npm test
+```
+
 ## Project Structure
 
 ```

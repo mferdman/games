@@ -22,6 +22,16 @@ export async function generateAIImage(request: AIContentRequest): Promise<{
   cached: boolean;
 }> {
   try {
+    // Skip OpenAI API calls in test mode (expensive!)
+    const IS_TEST = process.env.NODE_ENV === 'test' || process.env.VITEST === 'true';
+    if (IS_TEST) {
+      console.log(`[TEST MODE] Skipping OpenAI API call for: ${request.word}`);
+      return {
+        imageUrl: `/api/images/${request.language}/test-placeholder.png`,
+        cached: true,
+      };
+    }
+
     // Check cache first
     const cached = getCachedImage(request.word, request.language);
     if (cached) {

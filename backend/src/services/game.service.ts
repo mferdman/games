@@ -96,6 +96,11 @@ export async function getOrCreateGame(
   let finalGameDate: string | null = null;
   if (config.playMode === 'daily') {
     finalGameDate = gameDate || getTodayDateEST();
+
+    // Validate date to prevent spoofing
+    if (gameDate) {
+      validateGameDate(gameDate);
+    }
   }
 
   // Try to load existing game
@@ -217,6 +222,29 @@ function getTodayDateEST(): string {
   const day = parts.find(p => p.type === 'day')!.value;
 
   return `${year}-${month}-${day}`;
+}
+
+/**
+ * Validate game date to prevent spoofing attacks
+ * - Rejects future dates
+ * - Rejects dates >30 days old
+ */
+function validateGameDate(date: string): void {
+  const today = getTodayDateEST();
+  const requestedDate = new Date(date + 'T00:00:00');
+  const todayDate = new Date(today + 'T00:00:00');
+
+  // Reject future dates
+  if (requestedDate > todayDate) {
+    throw new Error('Cannot play future games');
+  }
+
+  // Reject dates more than 30 days old
+  const thirtyDaysAgo = new Date(todayDate);
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+  if (requestedDate < thirtyDaysAgo) {
+    throw new Error('Date too far in past (max 30 days)');
+  }
 }
 
 /**
