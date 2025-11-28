@@ -52,7 +52,7 @@ export function FerdlePage({ gameId }: FerdlePageProps) {
       setShowWinAnimation(true);
       const timer = setTimeout(() => {
         setShowModal(true);
-      }, 800); // Wait for wave animation to complete
+      }, 1400); // Wait for two-wave animation to complete
       return () => clearTimeout(timer);
     } else if (gameState?.isComplete) {
       setShowModal(true);
