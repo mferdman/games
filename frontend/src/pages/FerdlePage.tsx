@@ -22,18 +22,42 @@ export function FerdlePage({ gameId }: FerdlePageProps) {
   const [gameDate, setGameDate] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  // Animation states
+  const [shake, setShake] = useState(false);
+  const [popIndex, setPopIndex] = useState<number | undefined>(undefined);
+  const [showWinAnimation, setShowWinAnimation] = useState(false);
+
   const wordLength = gameId.includes('en') ? 5 : 4;
   const language: 'en' | 'ru' = gameId.includes('en') ? 'en' : 'ru';
+
+  // Trigger shake animation
+  const triggerShake = useCallback(() => {
+    setShake(true);
+    setTimeout(() => setShake(false), 500);
+  }, []);
+
+  // Trigger pop animation for a specific tile
+  const triggerPop = useCallback((index: number) => {
+    setPopIndex(index);
+    setTimeout(() => setPopIndex(undefined), 100);
+  }, []);
 
   useEffect(() => {
     loadGame();
   }, [gameId]);
 
   useEffect(() => {
-    if (gameState?.isComplete) {
+    if (gameState?.isComplete && gameState?.won) {
+      // Trigger win animation before showing modal
+      setShowWinAnimation(true);
+      const timer = setTimeout(() => {
+        setShowModal(true);
+      }, 800); // Wait for wave animation to complete
+      return () => clearTimeout(timer);
+    } else if (gameState?.isComplete) {
       setShowModal(true);
     }
-  }, [gameState?.isComplete]);
+  }, [gameState?.isComplete, gameState?.won]);
 
   // Auto-scroll to bottom when new guesses are added
   useEffect(() => {
@@ -73,6 +97,7 @@ export function FerdlePage({ gameId }: FerdlePageProps) {
       if (key === 'ENTER') {
         if (currentGuess.length !== wordLength) {
           setError(`Word must be ${wordLength} letters`);
+          triggerShake();
           return;
         }
 
@@ -87,6 +112,7 @@ export function FerdlePage({ gameId }: FerdlePageProps) {
           // Check for error in response
           if ((result as any).error) {
             setError((result as any).error);
+            triggerShake();
             return;
           }
 
@@ -98,14 +124,17 @@ export function FerdlePage({ gameId }: FerdlePageProps) {
           }
         } catch (err: any) {
           setError(err.response?.data?.error || 'Invalid guess');
+          triggerShake();
         }
       } else if (key === '←' || key === 'BACKSPACE') {
         setCurrentGuess((prev) => prev.slice(0, -1));
       } else if (currentGuess.length < wordLength) {
+        const newIndex = currentGuess.length;
         setCurrentGuess((prev) => prev + key.toLowerCase());
+        triggerPop(newIndex);
       }
     },
-    [gameState, currentGuess, gameId, wordLength, gameDate]
+    [gameState, currentGuess, gameId, wordLength, gameDate, triggerShake, triggerPop]
   );
 
   // Physical keyboard support
@@ -172,6 +201,9 @@ export function FerdlePage({ gameId }: FerdlePageProps) {
               maxAttempts={gameState.maxAttempts}
               wordLength={wordLength}
               isComplete={gameState.isComplete}
+              shake={shake}
+              popIndex={popIndex}
+              showWinAnimation={showWinAnimation}
             />
           </div>
         </div>

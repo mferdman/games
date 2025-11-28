@@ -7,6 +7,9 @@ interface GameBoardProps {
   maxAttempts: number;
   wordLength: number;
   isComplete: boolean;
+  shake?: boolean;
+  popIndex?: number;
+  showWinAnimation?: boolean;
 }
 
 export function GameBoard({
@@ -15,6 +18,9 @@ export function GameBoard({
   maxAttempts,
   wordLength,
   isComplete,
+  shake,
+  popIndex,
+  showWinAnimation,
 }: GameBoardProps) {
   const MIN_VISIBLE_ROWS = 5;
 
@@ -22,8 +28,14 @@ export function GameBoard({
 
   // Completed guesses
   for (let i = 0; i < guesses.length; i++) {
+    const isLastGuess = i === guesses.length - 1;
     rows.push(
-      <GameRow key={i} guess={guesses[i]} wordLength={wordLength} />
+      <GameRow
+        key={i}
+        guess={guesses[i]}
+        wordLength={wordLength}
+        showWinAnimation={isLastGuess && showWinAnimation}
+      />
     );
   }
 
@@ -35,6 +47,8 @@ export function GameBoard({
         currentGuess={currentGuess}
         wordLength={wordLength}
         isActive
+        shake={shake}
+        popIndex={popIndex}
       />
     );
   }
