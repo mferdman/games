@@ -158,7 +158,7 @@ export class FerdleGame implements GamePlugin {
 
     // Check if in dictionary
     if (!this.dictionary.has(normalizedGuess)) {
-      return { valid: false, error: 'Not in word list' };
+      return { valid: false, error: 'Not a word' };
     }
 
     // Check for duplicate guess

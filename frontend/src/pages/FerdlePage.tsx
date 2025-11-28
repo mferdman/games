@@ -33,13 +33,13 @@ export function FerdlePage({ gameId }: FerdlePageProps) {
   // Trigger shake animation
   const triggerShake = useCallback(() => {
     setShake(true);
-    setTimeout(() => setShake(false), 500);
+    setTimeout(() => setShake(false), 600);
   }, []);
 
   // Trigger pop animation for a specific tile
   const triggerPop = useCallback((index: number) => {
     setPopIndex(index);
-    setTimeout(() => setPopIndex(undefined), 100);
+    setTimeout(() => setPopIndex(undefined), 150);
   }, []);
 
   useEffect(() => {
@@ -52,7 +52,7 @@ export function FerdlePage({ gameId }: FerdlePageProps) {
       setShowWinAnimation(true);
       const timer = setTimeout(() => {
         setShowModal(true);
-      }, 1400); // Wait for two-wave animation to complete
+      }, 900); // Wait for wave animation to complete
       return () => clearTimeout(timer);
     } else if (gameState?.isComplete) {
       setShowModal(true);
@@ -146,14 +146,18 @@ export function FerdlePage({ gameId }: FerdlePageProps) {
         handleKeyPress('ENTER');
       } else if (e.key === 'Backspace') {
         handleKeyPress('←');
-      } else if (e.key.match(/^[a-zа-яё]$/i)) {
-        handleKeyPress(e.key.toUpperCase());
+      } else {
+        // Filter by language - only accept letters valid for current game
+        const letterPattern = language === 'en' ? /^[a-z]$/i : /^[а-яё]$/i;
+        if (e.key.match(letterPattern)) {
+          handleKeyPress(e.key.toUpperCase());
+        }
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleKeyPress]);
+  }, [handleKeyPress, language]);
 
   if (loading) {
     return (
@@ -180,21 +184,17 @@ export function FerdlePage({ gameId }: FerdlePageProps) {
   return (
     <>
       <Toast message={error} onDismiss={() => setError(null)} />
-      <div className="max-w-2xl mx-auto px-4" style={{ height: 'calc(100vh - 4rem)', paddingBottom: '180px' }}>
-        <div className="flex flex-col h-full">
-          {/* Header - stays put */}
+      <div className="max-w-2xl mx-auto px-4 h-[calc(100vh-4rem)]">
+        <div className="flex flex-col h-full pb-52">
+          {/* Header - fixed at top */}
           <div className="text-center py-4 flex-shrink-0">
             <p className="text-gray-600">
               {gameState.maxAttempts - gameState.attempts} attempts remaining
             </p>
           </div>
 
-          {/* Game board - scrollable window */}
-          <div
-            ref={scrollRef}
-            className="flex-1 overflow-auto"
-            style={{ scrollbarGutter: 'stable' }}
-          >
+          {/* Game board - scrollable */}
+          <div ref={scrollRef} className="flex-1 overflow-y-auto min-h-0">
             <GameBoard
               guesses={ferdleState.guesses}
               currentGuess={currentGuess}

@@ -115,7 +115,7 @@ router.post('/:gameId/move', requireAuth, async (req, res, next) => {
     const validationErrors = [
       'Invalid move',
       'Game is already complete',
-      'Not in word list',
+      'Not a word',
       'Already guessed',
       'Guess must be',
       'Word must be'

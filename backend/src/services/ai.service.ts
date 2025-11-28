@@ -100,14 +100,14 @@ function buildPrompt(request: AIContentRequest): string {
 Изображение должно быть дружелюбным, ярким и помогать детям визуально понять концепцию.
 Используйте мультяшный стиль с яркими цветами и простыми, четкими образами.
 Используйте самое очевидное и прямое определение концепции - если есть несколько возможных интерпретаций, выберите самую распространенную и простую.
-НЕ включайте никакой текст, слова или цифры в само изображение.`;
+ВАЖНО: Изображение должно быть ТОЛЬКО визуальным - НИКАКОГО текста, букв, слов, цифр или символов. Полностью без надписей.`;
   }
 
   return `Create a colorful, kid-appropriate educational illustration showing the concept: "${request.definition}".
 The image should be friendly, vibrant, and help children understand the concept visually.
 Use a cartoon style with bright colors and simple, clear imagery.
 Use the most obvious and straightforward interpretation of the concept - if there are multiple possible meanings, choose the most common and simple one.
-Do NOT include any text, words, or numbers in the image itself.`;
+IMPORTANT: The image must be PURELY VISUAL - absolutely NO text, letters, words, numbers, or written symbols of any kind. Completely text-free.`;
 }
 
 /**

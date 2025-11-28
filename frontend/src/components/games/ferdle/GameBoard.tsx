@@ -69,7 +69,7 @@ export function GameBoard({
   }
 
   return (
-    <div className="space-y-1 pb-1">
+    <div className="space-y-1 pt-4 pb-1">
       {rows}
     </div>
   );
