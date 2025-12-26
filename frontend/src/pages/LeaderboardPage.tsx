@@ -7,7 +7,7 @@ import type { LeaderboardEntry, GameConfig } from '../types';
 export function LeaderboardPage() {
   const [games, setGames] = useState<GameConfig[]>([]);
   const [selectedGame, setSelectedGame] = useState<string>('');
-  const [selectedPeriod, setSelectedPeriod] = useState<string>('all_time');
+  const [selectedPeriod, setSelectedPeriod] = useState<string>('monthly');
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [userRank, setUserRank] = useState<LeaderboardEntry | null>(null);
   const [loading, setLoading] = useState(true);
@@ -56,7 +56,6 @@ export function LeaderboardPage() {
     { value: 'daily', label: 'Today' },
     { value: 'weekly', label: 'This Week' },
     { value: 'monthly', label: 'This Month' },
-    { value: 'all_time', label: 'All Time' },
   ];
 
   return (
