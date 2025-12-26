@@ -148,26 +148,26 @@ export function LeaderboardPage() {
               </div>
             )}
 
-            <div className="bg-white rounded-lg shadow-md overflow-hidden">
-              <table className="w-full">
+            <div className="bg-white rounded-lg shadow-md overflow-x-auto">
+              <table className="w-full min-w-0">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Rank
+                    <th className="px-2 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      #
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-2 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Player
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-2 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">
                       Played
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Win Rate
+                    <th className="px-2 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Win%
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-2 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Streak
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-2 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">
                       Avg
                     </th>
                   </tr>
@@ -175,41 +175,41 @@ export function LeaderboardPage() {
                 <tbody className="bg-white divide-y divide-gray-200">
                   {leaderboard.length === 0 ? (
                     <tr>
-                      <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
+                      <td colSpan={6} className="px-4 py-8 text-center text-gray-500">
                         No leaderboard data yet. Play some games to get started!
                       </td>
                     </tr>
                   ) : (
                     leaderboard.map((entry) => (
                       <tr key={entry.user_id}>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                          #{entry.rank}
+                        <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
+                          {entry.rank}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
+                        <td className="px-2 sm:px-4 py-3 whitespace-nowrap">
                           <div className="flex items-center">
                             {entry.avatar_url && (
                               <img
                                 src={entry.avatar_url}
                                 alt={entry.name}
-                                className="w-8 h-8 rounded-full mr-3"
+                                className="w-6 h-6 sm:w-8 sm:h-8 rounded-full mr-2 sm:mr-3"
                               />
                             )}
-                            <div className="text-sm font-medium text-gray-900">
+                            <div className="text-sm font-medium text-gray-900 truncate max-w-[100px] sm:max-w-none">
                               {entry.name}
                             </div>
                           </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-sm text-gray-500 hidden sm:table-cell">
                           {entry.games_played}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-sm text-gray-500">
                           {(entry.success_rate * 100).toFixed(0)}%
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-sm text-gray-500">
                           {entry.current_streak}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {entry.average_attempts?.toFixed(1) || 'N/A'}
+                        <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-sm text-gray-500 hidden sm:table-cell">
+                          {entry.average_attempts?.toFixed(1) || '-'}
                         </td>
                       </tr>
                     ))

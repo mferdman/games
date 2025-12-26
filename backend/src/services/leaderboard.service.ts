@@ -149,11 +149,32 @@ export function getLeaderboard(
 
   const rows = stmt.all(gameId, periodType, periodKey, groupName, limit);
 
-  // Add rank
-  return rows.map((row: any, index) => ({
-    ...row,
-    rank: index + 1,
-  }));
+  // Add rank with proper tie handling
+  // Users with identical ranking criteria get the same rank
+  let currentRank = 1;
+  return rows.map((row: any, index) => {
+    if (index > 0) {
+      const prev = rows[index - 1] as any;
+      // Check if this row has identical ranking criteria to previous
+      const sameSuccessRate = Math.round(row.success_rate * 1000000) === Math.round(prev.success_rate * 1000000);
+      const sameStreak = row.current_streak === prev.current_streak;
+      const sameAvgAttempts =
+        (row.average_attempts === null && prev.average_attempts === null) ||
+        (row.average_attempts !== null && prev.average_attempts !== null &&
+         Math.round(row.average_attempts * 1000000) === Math.round(prev.average_attempts * 1000000));
+      const sameGamesWon = row.games_won === prev.games_won;
+
+      if (!(sameSuccessRate && sameStreak && sameAvgAttempts && sameGamesWon)) {
+        // Different stats, so rank is position + 1
+        currentRank = index + 1;
+      }
+      // If same stats, keep the previous rank (tied)
+    }
+    return {
+      ...row,
+      rank: currentRank,
+    };
+  });
 }
 
 /**
@@ -198,7 +219,12 @@ export function getUserRank(
   const userAvgAttempts = (userStats as any).average_attempts
     ? Math.round((userStats as any).average_attempts * 1000000) / 1000000
     : null;
+  const userCurrentStreak = (userStats as any).current_streak;
+  const userGamesWon = (userStats as any).games_won;
 
+  // Count how many users rank higher
+  // Handle NULL average_attempts: users with non-null avg rank higher than users with null avg
+  // when success_rate and current_streak are equal
   const rank = db
     .prepare(
       `
@@ -209,11 +235,17 @@ export function getUserRank(
       AND ls.period_type = ?
       AND ls.period_key = ?
       AND u.group_name = ?
+      AND ls.user_id != ?
       AND (
-        ROUND(ls.success_rate, 6) > ? OR
-        (ROUND(ls.success_rate, 6) = ? AND ls.current_streak > ?) OR
-        (ROUND(ls.success_rate, 6) = ? AND ls.current_streak = ? AND ROUND(ls.average_attempts, 6) < ?) OR
-        (ROUND(ls.success_rate, 6) = ? AND ls.current_streak = ? AND ROUND(ls.average_attempts, 6) = ? AND ls.games_won > ?)
+        ROUND(ls.success_rate, 6) > ?
+        OR (ROUND(ls.success_rate, 6) = ? AND ls.current_streak > ?)
+        OR (ROUND(ls.success_rate, 6) = ? AND ls.current_streak = ? AND (
+          (ls.average_attempts IS NOT NULL AND ? IS NULL)
+          OR (ls.average_attempts IS NOT NULL AND ? IS NOT NULL AND ROUND(ls.average_attempts, 6) < ?)
+        ))
+        OR (ROUND(ls.success_rate, 6) = ? AND ls.current_streak = ? AND (
+          (ls.average_attempts IS NULL AND ? IS NULL) OR (ROUND(ls.average_attempts, 6) = ?)
+        ) AND ls.games_won > ?)
       )
   `
     )
@@ -222,16 +254,20 @@ export function getUserRank(
       periodType,
       periodKey,
       groupName,
+      userId,
       userSuccessRate,
       userSuccessRate,
-      (userStats as any).current_streak,
+      userCurrentStreak,
       userSuccessRate,
-      (userStats as any).current_streak,
+      userCurrentStreak,
+      userAvgAttempts,
+      userAvgAttempts,
       userAvgAttempts,
       userSuccessRate,
-      (userStats as any).current_streak,
+      userCurrentStreak,
       userAvgAttempts,
-      (userStats as any).games_won
+      userAvgAttempts,
+      userGamesWon
     ) as any;
 
   return {

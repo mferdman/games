@@ -29,6 +29,7 @@ interface FerdleStateData {
 export class FerdleGame implements GamePlugin {
   private dictionary: Set<string>;
   private targets: string[];
+  private shuffledTargets: string[];
   private language: 'en' | 'ru';
   private wordLength: number;
   private maxAttempts = 10;
@@ -38,6 +39,7 @@ export class FerdleGame implements GamePlugin {
     this.wordLength = wordLength;
     this.dictionary = new Set();
     this.targets = [];
+    this.shuffledTargets = [];
 
     this.loadWordLists();
   }
@@ -73,6 +75,12 @@ export class FerdleGame implements GamePlugin {
         .map((w: string) => w.toLowerCase())
         .filter((w: string) => w.length === this.wordLength);
 
+      // Create deterministic shuffled order for daily word selection
+      this.shuffledTargets = this.shuffleWithSeed(
+        this.targets,
+        `ferdle-${this.language}-${this.wordLength}`
+      );
+
       console.log(
         `✅ Loaded Ferdle ${this.language}: ${this.dictionary.size} dictionary words, ${this.targets.length} targets (${this.wordLength} letters)`
       );
@@ -83,13 +91,30 @@ export class FerdleGame implements GamePlugin {
   }
 
   /**
-   * Get daily word for a specific date (deterministic)
+   * Shuffle array deterministically using Fisher-Yates with seeded RNG
+   */
+  private shuffleWithSeed(array: string[], seed: string): string[] {
+    const rng = seedrandom(seed);
+    const result = [...array];
+    for (let i = result.length - 1; i > 0; i--) {
+      const j = Math.floor(rng() * (i + 1));
+      [result[i], result[j]] = [result[j], result[i]];
+    }
+    return result;
+  }
+
+  /**
+   * Get daily word for a specific date (deterministic, no repeats until pool exhausted)
    */
   private getDailyWord(date: string): string {
-    // Use date as seed for reproducible random selection
-    const rng = seedrandom(date);
-    const index = Math.floor(rng() * this.targets.length);
-    return this.targets[index];
+    // Calculate days since epoch (2024-01-01)
+    const epoch = new Date('2024-01-01T00:00:00Z').getTime();
+    const target = new Date(date + 'T00:00:00Z').getTime();
+    const dayNumber = Math.floor((target - epoch) / (24 * 60 * 60 * 1000));
+
+    // Cycle through shuffled list - guarantees no repeats until pool exhausted
+    const index = dayNumber % this.shuffledTargets.length;
+    return this.shuffledTargets[index];
   }
 
   getConfig(): GameConfig {
